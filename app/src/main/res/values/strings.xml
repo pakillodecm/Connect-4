@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Connect-4</string>
+    <string name="names_error">Players\' names must be different</string>
+    <string name="colors_error">Players\' colors must be different</string>
+    <string name="how_to_play">Connect-4 is a two-player game played on a 4x4 grid. Players take turns placing their chips in any empty cell. \n\nThe first player to align four of their chips in a row, column, or diagonal wins the game. If all cells are filled and no player has four in a row, the game ends in a draw. \n\nThink ahead and try to block your opponent!</string>
+    <string name="how_to_play_normal_mode">Normal mode is played on a 4x4 grid. Players take turns placing their tokens in any empty cell. \n\nThe first player to align four of their tokens in a row, column, or diagonal wins the game. If all cells are filled and no player has four in a row, the game ends in a draw. \n\nThink ahead and try to block your opponent!</string>
+    <string name="how_to_play_gravity_mode">Gravity mode is played on a 5x6 grid. Players take turns placing their tokens in any unfilled column. \n\nThe first player to align four of their tokens in a row, column, or diagonal wins the game. If all cells are filled and no player has four in a row, the game ends in a draw. \n\nThink ahead and try to block your opponent!</string>
+    <string name="about">Developed by Francisco de Castro Mañas, Mobile App Development student at Akademia Gorniczo-Hutnicza in Kraków, Poland \n\n2024/2025</string>
+</resources>

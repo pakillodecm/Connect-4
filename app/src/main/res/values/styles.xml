@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="ButtonCellNormalMode">
+        <item name="android:layout_width">70dp</item>
+        <item name="android:layout_height">70dp</item>
+        <item name="android:layout_margin">1dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">32sp</item>
+        <item name="android:backgroundTint">@color/white</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="ButtonCellGravityMode">
+        <item name="android:layout_width">45dp</item>
+        <item name="android:layout_height">45dp</item>
+        <item name="android:layout_margin">1dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:backgroundTint">@color/white</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="ButtonColumnGravityMode">
+        <item name="android:layout_width">45dp</item>
+        <item name="android:layout_height">45dp</item>
+        <item name="android:layout_margin">1dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:text">⬇</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:backgroundTint">@color/blue_gray_light</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+</resources>
