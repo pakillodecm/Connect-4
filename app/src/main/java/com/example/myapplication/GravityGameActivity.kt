@@ -108,6 +108,8 @@ class GravityGameActivity : ComponentActivity() {
         buttonReset = findViewById(R.id.btn_reset)
         buttonChangePlayers = findViewById(R.id.btn_change_players)
 
+        listColumns.flatten().forEach { it.isClickable = false }
+
         listButtons.forEachIndexed { indexCol, button ->
             button.setOnClickListener {
                 if (listColumns[indexCol].any { it.text == "" } && !gameEnded) {
@@ -115,26 +117,12 @@ class GravityGameActivity : ComponentActivity() {
                     columnLastEmpty.text = if (currentPlayer == CellState.P1) colorPlayer1 else colorPlayer2
                     val indexLastEmpty = listColumns[indexCol].indexOf(columnLastEmpty)
                     board[indexLastEmpty*listColumns.size+indexCol] = currentPlayer
+                    if (indexLastEmpty == 0) button.isClickable = false
                     currentPlayer = if (currentPlayer == CellState.P1) CellState.P2 else CellState.P1
                     updateStatus()
                 }
             }
         }
-
-//        listColumns.forEachIndexed { indexCol, column ->
-//            column.forEachIndexed { indexBtn, button ->
-//                button.setOnClickListener {
-//                    if (listColumns[indexCol].any { it.text == "" } && !gameEnded) {
-//                        val columnLastEmpty = listColumns[indexCol].findLast { it.text == "" }!!
-//                        columnLastEmpty.text = if (currentPlayer == CellState.P1) colorPlayer1 else colorPlayer2
-//                        val indexLastEmpty = listColumns[indexCol].indexOf(columnLastEmpty)
-//                        board[indexLastEmpty*listColumns.size+indexCol] = currentPlayer
-//                        currentPlayer = if (currentPlayer == CellState.P1) CellState.P2 else CellState.P1
-//                        updateStatus()
-//                    }
-//                }
-//            }
-//        }
 
         buttonReset.setOnClickListener {
             resetBoard()
@@ -162,7 +150,10 @@ class GravityGameActivity : ComponentActivity() {
         }
         board.replaceAll { CellState.Empty }
         for (column in listColumns) {
-            column.forEach { it.text = "" }
+            column.forEach {
+                it.text = ""
+                it.isClickable = true
+            }
         }
         gameEnded = false
         updateStatus()

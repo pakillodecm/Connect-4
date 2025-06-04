@@ -51,8 +51,9 @@ class NormalGameActivity : ComponentActivity() {
         listButtons.forEachIndexed { index, button ->
             button.setOnClickListener {
                 if (board[index] == CellState.Empty && !gameEnded) {
-                    board[index] = currentPlayer
                     button.text = if (currentPlayer == CellState.P1) colorPlayer1 else colorPlayer2
+                    board[index] = currentPlayer
+                    button.isClickable = false
                     currentPlayer = if (currentPlayer == CellState.P1) CellState.P2 else CellState.P1
                     updateStatus()
                 }
@@ -84,7 +85,10 @@ class NormalGameActivity : ComponentActivity() {
             currentPlayer = CellState.entries.filter { it != CellState.Empty }.random()
         }
         board.replaceAll { CellState.Empty }
-        listButtons.forEach { it.text = "" }
+        listButtons.forEach {
+            it.text = ""
+            it.isClickable = true
+        }
         gameEnded = false
         updateStatus()
     }
