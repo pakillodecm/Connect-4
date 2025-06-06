@@ -11,6 +11,10 @@ import android.widget.Spinner
 import android.widget.Switch
 import android.widget.TextView
 import androidx.activity.ComponentActivity
+import androidx.lifecycle.lifecycleScope
+import com.example.connect4.database.AppDatabase
+import com.example.connect4.database.GameResult
+import kotlinx.coroutines.launch
 
 class PlayersChoiceActivity : ComponentActivity() {
 
@@ -20,6 +24,7 @@ class PlayersChoiceActivity : ComponentActivity() {
     private lateinit var colorPlayer2: String
     private lateinit var gameMode: String
 
+    private lateinit var buttonShowHistory: Button
     private lateinit var etNamePlayer1: EditText
     private lateinit var etNamePlayer2: EditText
     private lateinit var spinnerColorPlayer1: Spinner
@@ -37,12 +42,14 @@ class PlayersChoiceActivity : ComponentActivity() {
     private lateinit var popUpAbout: RelativeLayout
     private lateinit var buttonCloseDescription: Button
     private lateinit var buttonCloseAbout: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
 //        enableEdgeToEdge()
         setContentView(R.layout.players_layout)
 
+        buttonShowHistory = findViewById(R.id.btn_show_history)
         etNamePlayer1 = findViewById(R.id.et_name_player1)
         etNamePlayer2 = findViewById(R.id.et_name_player2)
         spinnerColorPlayer1 = findViewById(R.id.sp_color_player1)
@@ -67,6 +74,22 @@ class PlayersChoiceActivity : ComponentActivity() {
         spinnerColorPlayer2.adapter = colorAdapter
 
         setStartingVariables(colors)
+
+        buttonShowHistory.setOnClickListener {
+            val targetActivity = HistoryActivity::class.java
+            val intent = Intent(this, targetActivity)
+            val namePlayer1 = etNamePlayer1.text.toString().ifBlank { "Player 1" }
+            val namePlayer2 = etNamePlayer2.text.toString().ifBlank { "Player 2" }
+            val colorPlayer1 = spinnerColorPlayer1.selectedItem as String
+            val colorPlayer2 = spinnerColorPlayer2.selectedItem as String
+            val gameMode = if (switchGameMode.isChecked) "G" else "N"
+            intent.putExtra("namePlayer1", namePlayer1)
+            intent.putExtra("namePlayer2", namePlayer2)
+            intent.putExtra("colorPlayer1", colorPlayer1)
+            intent.putExtra("colorPlayer2", colorPlayer2)
+            intent.putExtra("gameMode", gameMode)
+            startActivity(intent)
+        }
 
         switchGameMode.setOnCheckedChangeListener {_, isChecked ->
             if (isChecked) {
@@ -105,6 +128,18 @@ class PlayersChoiceActivity : ComponentActivity() {
             buttonCloseAbout = popUpAbout.findViewById(R.id.btn_close_about)
             buttonCloseAbout.setOnClickListener {
                 popUpAbout.visibility = LinearLayout.GONE
+            }
+            lifecycleScope.launch {
+                val newResult = GameResult(
+                    namePlayer1 = "Player 1",
+                    namePlayer2 = "Player 2",
+                    score = "3 - 2  ( 1 draw )",
+                    date = "06/06/2025 - 14:33",
+                    mode = "Normal",
+                    winner = "Player 1",
+                    duration = "12m 34s"
+                )
+                AppDatabase.getInstance(applicationContext).gameHistoryDAO().insertResult(newResult)
             }
         }
 

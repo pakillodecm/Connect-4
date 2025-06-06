@@ -25,6 +25,7 @@
         </activity>
         <activity android:name=".NormalGameActivity"/>
         <activity android:name=".GravityGameActivity"/>
+        <activity android:name=".HistoryActivity"/>
     </application>
 
 </manifest>

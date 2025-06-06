@@ -25,7 +25,7 @@
             android:background="@color/blue_gray"
             android:gravity="center"
             android:padding="5dp"
-            android:text="How to play?"
+            android:text="How to Play?"
             android:textColor="@color/white"
             android:textSize="22sp"
             android:textStyle="bold" />
