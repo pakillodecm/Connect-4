@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.ComponentActivity
+import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.lifecycleScope
 import com.example.connect4.database.AppDatabase
 import com.example.connect4.database.GameResult
@@ -43,7 +44,7 @@ class NormalGameActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
+        enableEdgeToEdge()
         setContentView(R.layout.normal_game_layout)
 
         namePlayer1 = intent.getStringExtra("namePlayer1").toString()

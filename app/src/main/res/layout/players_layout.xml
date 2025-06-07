@@ -195,6 +195,11 @@
     </LinearLayout>
 
     <include
+        android:id="@+id/popUp_history"
+        layout="@layout/dialog_history_layout"
+        android:visibility="gone" />
+
+    <include
         android:id="@+id/popUp_description_normal"
         layout="@layout/dialog_htp_normal_layout"
         android:visibility="gone" />
