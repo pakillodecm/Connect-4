@@ -5,6 +5,13 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.ComponentActivity
+import androidx.lifecycle.lifecycleScope
+import com.example.connect4.database.AppDatabase
+import com.example.connect4.database.GameResult
+import kotlinx.coroutines.launch
+import java.time.Duration
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class GravityGameActivity : ComponentActivity() {
 
@@ -14,12 +21,21 @@ class GravityGameActivity : ComponentActivity() {
     private lateinit var namePlayer2: String
     private lateinit var colorPlayer1: String
     private lateinit var colorPlayer2: String
+    private var scorePlayer1: Int = 0
+    private var scorePlayer2: Int = 0
+    private var numDraws: Int = 0
+    private var startDateTime: LocalDateTime = LocalDateTime.now()
+    private lateinit var endDateTime: LocalDateTime
 
     private var board = MutableList(30) { CellState.Empty }
     private lateinit var currentPlayer: CellState
     private var gameEnded = false
 
     private lateinit var txtStatus: TextView
+    private lateinit var txtColorPlayer1: TextView
+    private lateinit var txtScorePlayer1: TextView
+    private lateinit var txtColorPlayer2: TextView
+    private lateinit var txtScorePlayer2: TextView
     private lateinit var listButtonsColumn0: List<Button>
     private lateinit var listButtonsColumn1: List<Button>
     private lateinit var listButtonsColumn2: List<Button>
@@ -45,6 +61,10 @@ class GravityGameActivity : ComponentActivity() {
         currentPlayer = CellState.entries.filter { it != CellState.Empty }.random()
 
         txtStatus = findViewById(R.id.txt_status)
+        txtColorPlayer1 = findViewById(R.id.txt_color_1)
+        txtScorePlayer1 = findViewById(R.id.txt_score_1)
+        txtColorPlayer2 = findViewById(R.id.txt_color_2)
+        txtScorePlayer2 = findViewById(R.id.txt_score_2)
         updateStatus()
         listButtonsColumn0 = listOf(
             findViewById(R.id.btn_0),
@@ -108,6 +128,9 @@ class GravityGameActivity : ComponentActivity() {
         buttonReset = findViewById(R.id.btn_reset)
         buttonChangePlayers = findViewById(R.id.btn_change_players)
 
+        txtColorPlayer1.text = "$colorPlayer1 "
+        txtColorPlayer2.text = "$colorPlayer2 "
+
         listColumns.flatten().forEach { it.isClickable = false }
 
         listButtons.forEachIndexed { indexCol, button ->
@@ -129,6 +152,36 @@ class GravityGameActivity : ComponentActivity() {
         }
 
         buttonChangePlayers.setOnClickListener {
+            if (scorePlayer1 != 0 || scorePlayer2 != 0 || numDraws != 0) {
+                endDateTime = LocalDateTime.now()
+                val score = if (numDraws == 1) {
+                    "$scorePlayer1 - $scorePlayer2 ($numDraws draw)"
+                } else {
+                    "$scorePlayer1 - $scorePlayer2 ($numDraws draws)"
+                }
+                val winner = if (scorePlayer1 != scorePlayer2) {
+                    if (scorePlayer1 > scorePlayer2) namePlayer1 else namePlayer2
+                } else {
+                    "Draw"
+                }
+                val date = startDateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd - kk:mm"))
+                val gameTime = Duration.between(startDateTime, endDateTime)
+                val duration = "${gameTime.toMinutesPart()} min ${gameTime.toSecondsPart()} sec"
+
+                lifecycleScope.launch {
+                    val newResult = GameResult(
+                        player1 = "$namePlayer1 $colorPlayer1",
+                        player2 = "$namePlayer2 $colorPlayer2",
+                        score = score,
+                        winner = winner,
+                        mode = "Gravity",
+                        date = date,
+                        duration = duration
+                    )
+                    AppDatabase.getInstance(applicationContext).gameHistoryDAO().insertResult(newResult)
+                }
+            }
+
             val intent = Intent(this, PlayersChoiceActivity::class.java)
             if (namePlayer1 == "Player 1") namePlayer1 = ""
             if (namePlayer2 == "Player 2") namePlayer2 = ""
@@ -164,9 +217,20 @@ class GravityGameActivity : ComponentActivity() {
         if (winner != null) {
             gameEnded = true
             when (winner) {
-                CellState.P1 -> txtStatus.text = "$namePlayer1 wins!"
-                CellState.P2 -> txtStatus.text = "$namePlayer2 wins!"
-                CellState.Empty -> txtStatus.text = "Draw"
+                CellState.P1 -> {
+                    txtStatus.text = "$namePlayer1 wins!"
+                    scorePlayer1++
+                    txtScorePlayer1.text = scorePlayer1.toString()
+                }
+                CellState.P2 -> {
+                    txtStatus.text = "$namePlayer2 wins!"
+                    scorePlayer2++
+                    txtScorePlayer2.text = scorePlayer2.toString()
+                }
+                CellState.Empty -> {
+                    txtStatus.text = "Draw"
+                    numDraws++
+                }
             }
         } else {
             val name = if (currentPlayer == CellState.P1) namePlayer1 else namePlayer2

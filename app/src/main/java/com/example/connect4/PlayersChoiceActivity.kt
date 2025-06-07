@@ -11,10 +11,6 @@ import android.widget.Spinner
 import android.widget.Switch
 import android.widget.TextView
 import androidx.activity.ComponentActivity
-import androidx.lifecycle.lifecycleScope
-import com.example.connect4.database.AppDatabase
-import com.example.connect4.database.GameResult
-import kotlinx.coroutines.launch
 
 class PlayersChoiceActivity : ComponentActivity() {
 
@@ -128,18 +124,6 @@ class PlayersChoiceActivity : ComponentActivity() {
             buttonCloseAbout = popUpAbout.findViewById(R.id.btn_close_about)
             buttonCloseAbout.setOnClickListener {
                 popUpAbout.visibility = LinearLayout.GONE
-            }
-            lifecycleScope.launch {
-                val newResult = GameResult(
-                    namePlayer1 = "Player 1",
-                    namePlayer2 = "Player 2",
-                    score = "3 - 2  ( 1 draw )",
-                    date = "06/06/2025 - 14:33",
-                    mode = "Normal",
-                    winner = "Player 1",
-                    duration = "12m 34s"
-                )
-                AppDatabase.getInstance(applicationContext).gameHistoryDAO().insertResult(newResult)
             }
         }
 

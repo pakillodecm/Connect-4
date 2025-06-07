@@ -11,7 +11,7 @@ interface GameHistoryDAO {
     @Insert
     suspend fun insertResult(result: GameResult)
 
-    @Query("SELECT * FROM GameResult ORDER BY date DESC")
+    @Query("SELECT * FROM GameResult ORDER BY id DESC")
     fun getAllResults(): Flow<List<GameResult>>
 
     @Query("DELETE FROM GameResult")

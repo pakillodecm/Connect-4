@@ -6,11 +6,11 @@ import androidx.room.PrimaryKey
 @Entity
 data class GameResult(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val namePlayer1: String,
-    val namePlayer2: String,
+    val player1: String,
+    val player2: String,
     val score: String,
-    val date: String,
-    val mode: String,
     val winner: String,
+    val mode: String,
+    val date: String,
     val duration: String
 )

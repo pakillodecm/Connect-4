@@ -4,20 +4,6 @@
     android:layout_height="match_parent"
     android:background="@color/background">
 
-    <Button
-        android:id="@+id/btn_show_history"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/blue_gray_light"
-        android:padding="15dp"
-        android:text="History"
-        android:textColor="@color/white"
-        android:textSize="15sp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -142,10 +128,22 @@
             android:textSize="30sp"
             android:textStyle="bold" />
 
-        <LinearLayout
+        <Button
+            android:id="@+id/btn_show_history"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
+            android:backgroundTint="@color/blue_gray_light"
+            android:gravity="center"
+            android:padding="15dp"
+            android:text="View History"
+            android:textColor="@color/white"
+            android:textSize="15sp" />
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:gravity="center"
             android:orientation="horizontal">
