@@ -2,6 +2,7 @@ package com.example.connect4
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.animation.OvershootInterpolator
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.ComponentActivity
@@ -43,8 +44,8 @@ class GravityGameActivity : ComponentActivity() {
     private lateinit var listButtonsColumn3: List<Button>
     private lateinit var listButtonsColumn4: List<Button>
     private lateinit var listButtonsColumn5: List<Button>
-    private lateinit var listColumns: List<List<Button>>
-    private lateinit var listButtons: List<Button>
+    private lateinit var listGridButtons: List<List<Button>>
+    private lateinit var listColumnSelectorButtons: List<Button>
     private lateinit var buttonReset: Button
     private lateinit var buttonChangePlayers: Button
 
@@ -109,7 +110,7 @@ class GravityGameActivity : ComponentActivity() {
             findViewById(R.id.btn_23),
             findViewById(R.id.btn_29)
         )
-        listColumns = listOf(
+        listGridButtons = listOf(
             listButtonsColumn0,
             listButtonsColumn1,
             listButtonsColumn2,
@@ -117,7 +118,7 @@ class GravityGameActivity : ComponentActivity() {
             listButtonsColumn4,
             listButtonsColumn5
         )
-        listButtons = listOf(
+        listColumnSelectorButtons = listOf(
             findViewById(R.id.btn_col_0),
             findViewById(R.id.btn_col_1),
             findViewById(R.id.btn_col_2),
@@ -132,15 +133,15 @@ class GravityGameActivity : ComponentActivity() {
         txtColorPlayer1.text = "$colorPlayer1 "
         txtColorPlayer2.text = "$colorPlayer2 "
 
-        listColumns.flatten().forEach { it.isClickable = false }
+        listGridButtons.flatten().forEach { it.isClickable = false }
 
-        listButtons.forEachIndexed { indexCol, button ->
+        listColumnSelectorButtons.forEachIndexed { indexCol, button ->
             button.setOnClickListener {
-                if (listColumns[indexCol].any { it.text == "" } && !gameEnded) {
-                    val columnLastEmpty = listColumns[indexCol].findLast { it.text == "" }!!
+                if (listGridButtons[indexCol].any { it.text == "" } && !gameEnded) {
+                    val columnLastEmpty = listGridButtons[indexCol].findLast { it.text == "" }!!
                     columnLastEmpty.text = if (currentPlayer == CellState.P1) colorPlayer1 else colorPlayer2
-                    val indexLastEmpty = listColumns[indexCol].indexOf(columnLastEmpty)
-                    board[indexLastEmpty*listColumns.size+indexCol] = currentPlayer
+                    val indexLastEmpty = listGridButtons[indexCol].indexOf(columnLastEmpty)
+                    board[indexLastEmpty*listGridButtons.size+indexCol] = currentPlayer
                     if (indexLastEmpty == 0) button.isClickable = false
                     currentPlayer = if (currentPlayer == CellState.P1) CellState.P2 else CellState.P1
                     updateStatus()
@@ -155,11 +156,8 @@ class GravityGameActivity : ComponentActivity() {
         buttonChangePlayers.setOnClickListener {
             if (scorePlayer1 != 0 || scorePlayer2 != 0 || numDraws != 0) {
                 endDateTime = LocalDateTime.now()
-                val score = if (numDraws == 1) {
-                    "$scorePlayer1 - $scorePlayer2 ($numDraws draw)"
-                } else {
-                    "$scorePlayer1 - $scorePlayer2 ($numDraws draws)"
-                }
+                var score = "$scorePlayer1 - $scorePlayer2 "
+                score += if (numDraws == 1) "($numDraws draw)" else "($numDraws draws)"
                 val winner = if (scorePlayer1 != scorePlayer2) {
                     if (scorePlayer1 > scorePlayer2) namePlayer1 else namePlayer2
                 } else {
@@ -198,25 +196,33 @@ class GravityGameActivity : ComponentActivity() {
 
     private fun resetBoard() {
         if (gameEnded) {
-            currentPlayer = if (checkWinner() == CellState.P1) CellState.P2 else CellState.P1
+            val (winner, _) = checkWinnerLine()
+            currentPlayer = if (winner == CellState.P1) CellState.P2 else CellState.P1
         } else {
             currentPlayer = CellState.entries.filter { it != CellState.Empty }.random()
         }
         board.replaceAll { CellState.Empty }
-        for (column in listColumns) {
-            column.forEach {
-                it.text = ""
-                it.isClickable = true
-            }
-        }
+        listColumnSelectorButtons.forEach { it.isClickable = true }
+        listGridButtons.forEach { it.forEach { button ->
+            button.text = ""
+            button.animate().cancel()
+            button.alpha = 1f
+        } }
         gameEnded = false
+        txtStatus.animate().cancel()
+        txtStatus.alpha = 1f
         updateStatus()
     }
 
     private fun updateStatus() {
-        val winner = checkWinner()
+        val (winner, winningLine) = checkWinnerLine()
         if (winner != null) {
             gameEnded = true
+            listColumnSelectorButtons.forEach { it.isClickable = false }
+            if (winner != CellState.Empty) {
+                animateWinningText(txtStatus)
+                animateWinningTokens(winningLine!!)
+            }
             when (winner) {
                 CellState.P1 -> {
                     txtStatus.text = "$namePlayer1 wins!"
@@ -239,7 +245,7 @@ class GravityGameActivity : ComponentActivity() {
         }
     }
 
-    private fun checkWinner(): CellState? {
+    private fun checkWinnerLine(): Pair<CellState?, List<Button>?> {
         val winPositions = listOf(
             listOf(0, 1, 2, 3), listOf(1, 2, 3, 4), listOf(2, 3, 4, 5),
             listOf(6, 7, 8, 9), listOf(7, 8, 9, 10), listOf(8, 9, 10, 11),
@@ -257,10 +263,64 @@ class GravityGameActivity : ComponentActivity() {
         for ((a, b, c, d) in winPositions) {
             if (board[a] != CellState.Empty && board[a] == board[b] &&
                 board[b] == board[c] && board[c] == board[d]) {
-                return board[a]
+                val winningLine = listOf(a, b, c, d)
+                val winningLineButtons = mutableListOf<Button>()
+                for (pos in winningLine) {
+                    val row = pos/6
+                    val col = pos%6
+                    winningLineButtons.add(listGridButtons[col][row])
+                }
+                return Pair(board[a], winningLineButtons)
             }
         }
-        return if (board.all { it != CellState.Empty }) CellState.Empty else null
+        return if (board.all { it != CellState.Empty }) {
+            Pair(CellState.Empty, null)
+        } else {
+            Pair(null, null)
+        }
+    }
+
+    private fun animateWinningText(textView: TextView) {
+        textView.animate()
+            .alpha(1f)
+            .scaleX(1.3f)
+            .scaleY(1.3f)
+            .setDuration(800)
+            .setInterpolator(OvershootInterpolator())
+            .withEndAction {
+                textView.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(400)
+                    .start()
+            }
+            .start()
+    }
+
+    private fun animateWinningTokens(listButtons: List<Button>) {
+        listButtons.forEach {
+            blinkButton(it)
+        }
+    }
+
+    private fun blinkButton(button: Button, reps: Int = 5) {
+        if (reps == 0) {
+            button.alpha = 1f
+            return
+        }
+        button.animate()
+            .alpha(0f)
+            .setDuration(400)
+            .withEndAction {
+                button.animate()
+                    .alpha(1f)
+                    .setDuration(400)
+                    .withEndAction {
+                        blinkButton(button, reps - 1)
+                    }
+                    .start()
+            }
+            .start()
     }
 
 }

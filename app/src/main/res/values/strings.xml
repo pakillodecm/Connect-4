@@ -6,4 +6,5 @@
     <string name="how_to_play_normal_mode">Normal mode is played on a 4x4 grid. Players take turns placing their tokens in any empty cell. \n\nThe first player to align four of their tokens in a row, column, or diagonal wins the game. If all cells are filled and no player has four in a row, the game ends in a draw. \n\nThink ahead and try to block your opponent!</string>
     <string name="how_to_play_gravity_mode">Gravity mode is played on a 5x6 grid. Players take turns placing their tokens in any unfilled column. \n\nThe first player to align four of their tokens in a row, column, or diagonal wins the game. If all cells are filled and no player has four in a row, the game ends in a draw. \n\nThink ahead and try to block your opponent!</string>
     <string name="about">Developed by Francisco de Castro Mañas, Mobile App Development student at Akademia Gorniczo-Hutnicza in Kraków, Poland \n\nGitHub repo: \nhttps://github.com/pakillodecm/Connect-4 \n\n2024/2025</string>
+    <string name="confirm_question">Are you sure you want to confirm that action?</string>
 </resources>

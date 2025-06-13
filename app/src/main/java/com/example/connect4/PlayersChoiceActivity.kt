@@ -27,9 +27,11 @@ class PlayersChoiceActivity : ComponentActivity() {
     private lateinit var colorPlayer2: String
     private lateinit var gameMode: String
 
-    private lateinit var recyclerView: RecyclerView
+    private lateinit var recyclerViewHistory: RecyclerView
     private lateinit var adapter: GameResultAdapter
     private lateinit var dao: GameHistoryDAO
+
+    private lateinit var txtEmptyHistory: TextView
 
     private lateinit var etNamePlayer1: EditText
     private lateinit var etNamePlayer2: EditText
@@ -45,9 +47,12 @@ class PlayersChoiceActivity : ComponentActivity() {
     private lateinit var buttonShowDescription: Button
     private lateinit var buttonShowAbout: Button
     private lateinit var popUpHistory: RelativeLayout
+    private lateinit var popUpConfirmation: RelativeLayout
     private lateinit var popUpDescriptionNormal: RelativeLayout
     private lateinit var popUpDescriptionGravity: RelativeLayout
     private lateinit var popUpAbout: RelativeLayout
+    private lateinit var buttonDismissAction: Button
+    private lateinit var buttonConfirmAction: Button
     private lateinit var buttonCloseHistory: Button
     private lateinit var buttonClearHistory: Button
     private lateinit var buttonCloseDescription: Button
@@ -73,6 +78,7 @@ class PlayersChoiceActivity : ComponentActivity() {
         buttonShowDescription = findViewById(R.id.btn_show_description)
         buttonShowAbout = findViewById(R.id.btn_show_about)
         popUpHistory = findViewById(R.id.popUp_history)
+        popUpConfirmation = findViewById(R.id.popUp_confirmation)
         popUpDescriptionNormal = findViewById(R.id.popUp_description_normal)
         popUpDescriptionGravity = findViewById(R.id.popUp_description_gravity)
         popUpAbout = findViewById(R.id.popUp_about)
@@ -126,17 +132,28 @@ class PlayersChoiceActivity : ComponentActivity() {
             }
         }
 
-        recyclerView = findViewById(R.id.recycler_view_history)
+        recyclerViewHistory = popUpHistory.findViewById(R.id.recycler_view_history)
         adapter = GameResultAdapter(emptyList())
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = adapter
+        recyclerViewHistory.layoutManager = LinearLayoutManager(this)
+        recyclerViewHistory.adapter = adapter
 
         val db = AppDatabase.getInstance(applicationContext)
         dao = db.gameHistoryDAO()
 
+        txtEmptyHistory = popUpHistory.findViewById(R.id.txt_empty_history)
+
         buttonShowHistory.setOnClickListener {
             lifecycleScope.launch {
-                dao.getAllResults().collect { results -> adapter.updateData(results) }
+                dao.getAllResults().collect { results ->
+                    adapter.updateData(results)
+                    if (results.isEmpty()) {
+                        recyclerViewHistory.visibility = RecyclerView.GONE
+                        txtEmptyHistory.visibility = TextView.VISIBLE
+                    } else {
+                        recyclerViewHistory.visibility = RecyclerView.VISIBLE
+                        txtEmptyHistory.visibility = TextView.GONE
+                    }
+                }
             }
             popUpHistory.visibility = LinearLayout.VISIBLE
             buttonCloseHistory = popUpHistory.findViewById(R.id.btn_close_history)
@@ -145,8 +162,17 @@ class PlayersChoiceActivity : ComponentActivity() {
             }
             buttonClearHistory = popUpHistory.findViewById(R.id.btn_clear_history)
             buttonClearHistory.setOnClickListener {
-                lifecycleScope.launch {
-                    dao.clearAllResults()
+                popUpConfirmation.visibility = LinearLayout.VISIBLE
+                buttonDismissAction = popUpConfirmation.findViewById(R.id.btn_dismiss_action)
+                buttonDismissAction.setOnClickListener {
+                    popUpConfirmation.visibility = LinearLayout.GONE
+                }
+                buttonConfirmAction = popUpConfirmation.findViewById(R.id.btn_confirm_action)
+                buttonConfirmAction.setOnClickListener {
+                    lifecycleScope.launch {
+                        dao.clearAllResults()
+                    }
+                    popUpConfirmation.visibility = LinearLayout.GONE
                 }
             }
         }

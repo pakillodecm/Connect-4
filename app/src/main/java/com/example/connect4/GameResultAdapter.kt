@@ -48,4 +48,5 @@ class GameResultAdapter(private var results: List<GameResult>): RecyclerView.Ada
         results = newResults
         notifyDataSetChanged()
     }
+
 }
